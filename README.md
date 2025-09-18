@@ -21,5 +21,5 @@ A web-based tool to detect Kolam designs from uploaded images and recreate them 
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-username/kolam-digitizer.git
+git clone https://github.com/shii002/kolam-digitizer.git
 cd kolam-digitizer

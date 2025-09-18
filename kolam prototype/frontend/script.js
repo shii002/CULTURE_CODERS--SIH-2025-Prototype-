@@ -1,78 +1,105 @@
-// script.js - Frontend logic: upload preview, send to Flask, display processed result
-const uploadBtn = document.getElementById("uploadBtn");
-const imageInput = document.getElementById("imageInput");
-const previewBox = document.getElementById("previewBox");
-const detectBtn = document.getElementById("detectBtn");
-const resultBox = document.getElementById("resultBox");
-const downloadBtn = document.getElementById("downloadBtn");
+const imageInput = document.getElementById('imageInput');
+const dropZone = document.getElementById('dropZone');
+const previewBox = document.getElementById('previewBox');
+const resultBox = document.getElementById('resultBox');
+const detectBtn = document.getElementById('detectBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const spinnerTpl = document.getElementById('spinnerTpl');
 
 let lastProcessedDataUrl = null;
+let currentFile = null;
 
-uploadBtn.addEventListener("click", () => imageInput.click());
+// Drag & Drop UX
+;['dragenter','dragover'].forEach(evt =>
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropZone.classList.add('dragover');
+  })
+);
+;['dragleave','drop'].forEach(evt =>
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropZone.classList.remove('dragover');
+  })
+);
 
-// Show preview when file selected
-imageInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+dropZone.addEventListener('drop', e => {
+  const dt = e.dataTransfer;
+  if (dt && dt.files && dt.files.length) {
+    imageInput.files = dt.files;
+    handleFile(dt.files[0]);
+  }
+});
+
+// Click to open file selector
+dropZone.addEventListener('click', () => imageInput.click());
+imageInput.addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  currentFile = file;
+  lastProcessedDataUrl = null;
+  downloadBtn.disabled = true;
+  resultBox.innerHTML = 'Result will appear here';
   const reader = new FileReader();
-  reader.onload = () => {
-    previewBox.innerHTML = `<img src="${reader.result}" alt="preview">`;
-    // clear previous result
-    resultBox.innerHTML = "Result will appear here";
-    downloadBtn.disabled = true;
-    lastProcessedDataUrl = null;
+  reader.onload = (ev) => {
+    previewBox.innerHTML = `<img src="${ev.target.result}" alt="preview">`;
   };
   reader.readAsDataURL(file);
-});
+}
 
-// Detect button: send to backend
-detectBtn.addEventListener("click", () => {
-  const file = imageInput.files[0];
-  if (!file) {
-    alert("Please upload an image first!");
-    return;
-  }
-
+// Show spinner
+function showProcessing(){
+  resultBox.innerHTML = '';
+  const tpl = spinnerTpl.content.cloneNode(true);
+  resultBox.appendChild(tpl);
   detectBtn.disabled = true;
-  detectBtn.textContent = "Processing...";
+  detectBtn.textContent = 'Processing...';
+}
 
-  const formData = new FormData();
-  formData.append("image", file);
+// Hide spinner
+function hideProcessing(){
+  detectBtn.disabled = false;
+  detectBtn.textContent = '🔍 Detect & Recreate';
+}
 
-  fetch("http://127.0.0.1:5000/detect", {
-    method: "POST",
-    body: formData
-  })
-    .then(async res => {
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`Server error: ${txt}`);
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (!data.processed_image) throw new Error("No processed_image in response");
-      // data.processed_image is base64 PNG (no header)
-      const dataUrl = `data:image/png;base64,${data.processed_image}`;
-      resultBox.innerHTML = `<img src="${dataUrl}" alt="processed">`;
-      lastProcessedDataUrl = dataUrl;
-      downloadBtn.disabled = false;
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Processing failed. Check backend console.");
-    })
-    .finally(() => {
-      detectBtn.disabled = false;
-      detectBtn.textContent = "🔍 Detect Kolam";
+// Send image to backend
+detectBtn.addEventListener('click', async () => {
+  if (!currentFile) { alert('Please upload a Kolam image first'); return; }
+  showProcessing();
+
+  const form = new FormData();
+  form.append('image', currentFile);
+
+  try {
+    const res = await fetch('http://127.0.0.1:5000/detect', {
+      method: 'POST',
+      body: form
     });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'Server error');
+    }
+    const data = await res.json();
+    if (!data.processed_image) throw new Error('No processed image returned');
+    const dataUrl = `data:image/png;base64,${data.processed_image}`;
+    lastProcessedDataUrl = dataUrl;
+    resultBox.innerHTML = `<img src="${dataUrl}" alt="processed">`;
+    downloadBtn.disabled = false;
+    hideProcessing();
+  } catch (err) {
+    console.error(err);
+    hideProcessing();
+    resultBox.innerHTML = `<div style="color:#b00020;padding:12px">Processing failed: ${err.message}</div>`;
+  }
 });
 
-// Download processed PNG
-downloadBtn.addEventListener("click", () => {
+// Download handler
+downloadBtn.addEventListener('click', () => {
   if (!lastProcessedDataUrl) return;
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = lastProcessedDataUrl;
-  a.download = "kolam_processed.png";
+  a.download = 'kolam_processed.png';
   a.click();
 });

@@ -23,3 +23,5 @@ A web-based tool to detect Kolam designs from uploaded images and recreate them 
 ```bash
 git clone https://github.com/shii002/kolam-digitizer.git
 cd kolam-digitizer
+OPENING LINK DIRECT------
+ https://shii002.github.io/CULTURE_CODERS--SIH-2025-Prototype-/

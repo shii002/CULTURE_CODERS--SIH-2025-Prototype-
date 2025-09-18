@@ -1,48 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kolam Digitizer Prototype</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kolam Digitizer — Prototype</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Kolam Digitizer — Prototype</h1>
-      <p class="tagline">Upload a kolam image → detect & recreate (edge demo)</p>
-    </header>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">🪷</div>
+      <div>
+        <h1>Kolam Digitizer</h1>
+        <p class="subtitle">Preserve • Analyze • Recreate traditional Kolam patterns</p>
+      </div>
+    </div>
 
-    <main>
-      <section class="controls">
-        <input type="file" id="imageInput" accept="image/*" style="display:none;" />
-        <button id="uploadBtn" class="btn">📤 Upload Image</button>
-        <button id="detectBtn" class="btn primary">🔍 Detect Kolam</button>
-        <button id="downloadBtn" class="btn" disabled>⬇️ Download PNG</button>
-      </section>
+    <nav class="nav">
+      <a href="#" class="nav-item">Home</a>
+      <a href="#" class="nav-item">About</a>
+      <a href="#" class="nav-item">Team</a>
+      <a href="#" class="nav-item">Contact</a>
+    </nav>
+  </header>
 
-      <section class="panels">
-        <div class="panel">
-          <h3>Original Preview</h3>
-          <div id="previewBox" class="box">No image yet</div>
+  <main class="container">
+    <section class="hero">
+      <div class="hero-left">
+        <h2>Create digital Kolams from photos — fast prototype</h2>
+        <p class="lead">Upload a Kolam image and our backend analyzes design principles (dots, symmetry, loops) and recreates a clean digital form.</p>
+
+        <div class="controls">
+          <label class="upload-box" id="dropZone">
+            <input type="file" id="imageInput" accept="image/*" />
+            <div class="upload-content">
+              <strong>Click or drag & drop</strong>
+              <span>Upload Kolam image (jpg/png)</span>
+            </div>
+          </label>
+
+          <div class="buttons">
+            <button id="detectBtn" class="btn primary">🔍 Detect & Recreate</button>
+            <button id="downloadBtn" class="btn" disabled>⬇️ Download</button>
+          </div>
         </div>
 
-        <div class="panel">
-          <h3>Processed Output</h3>
-          <div id="resultBox" class="box">Result will appear here</div>
+        <div class="hints">
+          <span>Tip: use clear daylight photos for best results.</span>
         </div>
-      </section>
+      </div>
 
-      <section class="notes">
-        <p><strong>Note:</strong> Backend must be running at <code>http://127.0.0.1:5000</code> for detection.</p>
-      </section>
-    </main>
+      <div class="hero-right">
+        <div class="preview-card">
+          <h4>Original Preview</h4>
+          <div id="previewBox" class="preview-box">No image yet</div>
+        </div>
 
-    <footer>
-      <small>Prototype for SIH — uses Flask + OpenCV (edge demo). </small>
-    </footer>
-  </div>
+        <div class="preview-card">
+          <h4>Processed Output</h4>
+          <div id="resultBox" class="preview-box">Result will appear here</div>
+        </div>
+      </div>
+    </section>
 
+    <section class="features">
+      <div class="feature">
+        <h3>Fast Processing</h3>
+        <p>Lightweight OpenCV pipeline for quick proof-of-concept detection.</p>
+      </div>
+      <div class="feature">
+        <h3>Downloadable Output</h3>
+        <p>Save processed Kolam as PNG for later use or conversion to SVG.</p>
+      </div>
+      <div class="feature">
+        <h3>Future Ready</h3>
+        <p>Designed to integrate ML/CNN model for robust pattern understanding.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>Built for SIH 2025 • Team Culture Coders</div>
+    <div class="small">Backend: Flask + OpenCV + numpy + Matplotlib
+       • Frontend: HTML/CSS/JS</div>
+  </footer>
+
+  <!-- Spinner template -->
+  <template id="spinnerTpl">
+    <div class="spinner">
+      <div class="dot dot1"></div>
+      <div class="dot dot2"></div>
+      <div class="dot dot3"></div>
+    </div>
+  </template>
+
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
